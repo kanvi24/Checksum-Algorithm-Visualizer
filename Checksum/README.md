@@ -90,4 +90,4 @@ This project is intended for learning and demonstrating the checksum technique i
 
 ## Author
 
-Add your name here.
+Kanvi Patel.
