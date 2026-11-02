@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checksum Algorithm Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 Checksum Algorithm Visualizer</h1>
+            <p>Sender & Receiver Side Implementation with Step-by-Step Calculation</p>
+        </header>
+
+        <!-- Input Section -->
+        <section class="input-section">
+            <h2>📥 Input Configuration</h2>
+            <div class="input-group">
+                <label for="dataInput">Enter Binary Data (space-separated segments):</label>
+                <input type="text" id="dataInput" placeholder="e.g., 10101010 11001100 11110000 00001111">
+                <span class="error-message" id="dataError"></span>
+            </div>
+            
+            <div class="input-group">
+                <label for="segmentSize">Segment Size (bits):</label>
+                <select id="segmentSize">
+                    <option value="4">4 bits</option>
+                    <option value="8" selected>8 bits</option>
+                    <option value="16">16 bits</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Or Generate Random Data:</label>
+                <div class="random-controls">
+                    <input type="number" id="numSegments" min="2" max="8" value="4" placeholder="Number of segments">
+                    <button id="generateBtn" class="btn btn-secondary">Generate Random</button>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button id="calculateBtn" class="btn btn-primary">
+                    <span>Calculate Checksum</span>
+                    <div class="btn-animation"></div>
+                </button>
+                <button id="resetBtn" class="btn btn-danger">Reset</button>
+            </div>
+        </section>
+
+        <!-- Sender Section -->
+        <section class="sender-section" id="senderSection">
+            <h2>📤 SENDER SIDE</h2>
+            <div class="section-content">
+                <div class="data-display">
+                    <h3>Original Data Segments:</h3>
+                    <div class="segments-container" id="senderSegments"></div>
+                </div>
+
+                <div class="calculation-steps" id="senderSteps">
+                    <h3>Step-by-Step Calculation:</h3>
+                    <div class="steps-container" id="senderStepsContainer"></div>
+                </div>
+
+                <div class="result-box" id="senderResult">
+                    <h3>Results:</h3>
+                    <div class="result-item">
+                        <span>Sum:</span>
+                        <span id="senderSum" class="result-value"></span>
+                    </div>
+                    <div class="result-item">
+                        <span>Checksum (1's Complement):</span>
+                        <span id="checksumValue" class="result-value checksum"></span>
+                    </div>
+                </div>
+
+                <div class="transmitted-data" id="transmittedData">
+                    <h3>📡 Transmitted Data (Data + Checksum):</h3>
+                    <div class="transmitted-container" id="transmittedContainer"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transmission Animation -->
+        <section class="transmission-section" id="transmissionSection">
+            <div class="transmission-animation">
+                <div class="sender-icon">📤</div>
+                <div class="data-packet" id="dataPacket">
+                    <span>Data Packet</span>
+                </div>
+                <div class="transmission-line">
+                    <div class="signal" id="signal"></div>
+                </div>
+                <div class="receiver-icon">📥</div>
+            </div>
+
+            <!-- Error Injection -->
+            <div class="error-injection">
+                <h4>🔧 Simulate Error (Optional):</h4>
+                <div class="error-controls">
+                    <label>
+                        <input type="checkbox" id="injectError">
+                        Inject bit error in transmission
+                    </label>
+                    <div class="error-position" id="errorPositionDiv" style="display: none;">
+                        <label>Segment to corrupt:</label>
+                        <input type="number" id="errorSegment" min="0" value="0">
+                        <label>Bit position:</label>
+                        <input type="number" id="errorBit" min="0" value="0">
+                    </div>
+                </div>
+                <button id="transmitBtn" class="btn btn-success" disabled>
+                    🚀 Transmit Data
+                </button>
+            </div>
+        </section>
+
+        <!-- Receiver Section -->
+        <section class="receiver-section" id="receiverSection">
+            <h2>📥 RECEIVER SIDE</h2>
+            <div class="section-content">
+                <div class="data-display">
+                    <h3>Received Data Segments (including Checksum):</h3>
+                    <div class="segments-container" id="receiverSegments"></div>
+                </div>
+
+                <div class="calculation-steps" id="receiverSteps">
+                    <h3>Step-by-Step Verification:</h3>
+                    <div class="steps-container" id="receiverStepsContainer"></div>
+                </div>
+
+                <div class="result-box" id="receiverResult">
+                    <h3>Verification Results:</h3>
+                    <div class="result-item">
+                        <span>Sum of all segments:</span>
+                        <span id="receiverSum" class="result-value"></span>
+                    </div>
+                    <div class="result-item">
+                        <span>1's Complement of Sum:</span>
+                        <span id="receiverComplement" class="result-value"></span>
+                    </div>
+                    <div class="result-item verification">
+                        <span>Verification Status:</span>
+                        <span id="verificationStatus" class="result-value"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary Section -->
+        <section class="summary-section" id="summarySection">
+            <h2>📊 Summary</h2>
+            <div class="summary-content" id="summaryContent"></div>
+        </section>
+
+        <!-- Theory Section -->
+        <section class="theory-section">
+            <h2>📚 How Checksum Works</h2>
+            <div class="theory-content">
+                <div class="theory-card">
+                    <h4>Sender Side</h4>
+                    <ol>
+                        <li>Divide data into equal-sized segments</li>
+                        <li>Add all segments using binary addition</li>
+                        <li>If carry exists, add it back (wrap around)</li>
+                        <li>Take 1's complement → This is the Checksum</li>
+                        <li>Append checksum to data and transmit</li>
+                    </ol>
+                </div>
+                <div class="theory-card">
+                    <h4>Receiver Side</h4>
+                    <ol>
+                        <li>Receive data segments + checksum</li>
+                        <li>Add all segments including checksum</li>
+                        <li>If carry exists, add it back (wrap around)</li>
+                        <li>Take 1's complement of the result</li>
+                        <li>If result is 0 → Data Valid ✅</li>
+                        <li>If result is non-zero → Error Detected ❌</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
